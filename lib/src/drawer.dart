@@ -1,10 +1,7 @@
 
-
-
-
 import 'package:apex_dart/src/renderer/index.html.dart';
+import 'package:crossview/crossview.dart';
 import 'package:flutter/material.dart';
-import 'package:webviewx/webviewx.dart';
 
 
 class ApexDart extends StatefulWidget {
@@ -18,19 +15,24 @@ class ApexDart extends StatefulWidget {
 
 class _ApexDartState extends State<ApexDart> {
 
-  late WebViewXController webViewController;
+  late CrossViewController webViewController;
 
   bool _jsEvaluating = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WebViewX(
+      body: CrossView(
         initialContent: INDEX_HTML,
         initialSourceType: SourceType.html,
-        onWebViewCreated: (controller) => webViewController = controller,
-        height: MediaQuery.of(context).size.height / 2,
-        width: MediaQuery.of(context).size.width,
+        onWebViewCreated: (controller) {
+
+          webViewController = controller;
+
+          webViewController.loadContent(INDEX_HTML, SourceType.html);
+
+
+        }
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),

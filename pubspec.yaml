@@ -1,7 +1,7 @@
 name: apex_dart
-description: A new Flutter project.
+description: Apex Dart - Cross-Platform Chart Library for Flutter
 version: 0.0.1
-homepage:
+homepage: https://github.com/warioddly/apex_dart
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -13,7 +13,7 @@ dependencies:
   flutter_web_plugins:
     sdk: flutter
   plugin_platform_interface: ^2.0.2
-  webviewx: ^0.2.2
+  crossview: ^0.0.1
 
 
 dev_dependencies:
