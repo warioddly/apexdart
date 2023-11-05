@@ -1,84 +1,44 @@
 
+import 'dart:convert';
+
+import 'package:apex_dart/src/renderer/apex_helpers.js.dart';
 import 'package:apex_dart/src/renderer/apexcharts.css.dart';
 import 'package:apex_dart/src/renderer/apexcharts.js.dart';
 
-const String INDEX_HTML = """ 
-<!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <title>ApexCharts</title>
-    <style>$APEX_CHARTS_CSS</style>
-    <script>$APEX_CHARTS_JS</script>
-  </head>
-  <body>
-  
-    <h2>Line Chart 1</h2>
-    <div id="chart"></div>
-    
-    
-    <script>
-      window.CHART = null;
-      window.onload = function () {
-      
-        var options = {
-          series: [{
-            name: 'sales',
-            data: [30,40,35,50,49,60,70,91,125]
-          }],
-          chart: {
-            height: 350,
-            type: 'line',
-            zoom: {
-              enabled: false
-            }
-          },
-          dataLabels: {
-            enabled: false
-          },
-          stroke: {
-            curve: 'straight'
-          },
-          title: {
-            text: 'Product Trends by Month',
-            align: 'left'
-          },
-          grid: {
-            row: {
-              colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-              opacity: 0.5
-            },
-          },
-          xaxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'],
-          }
-        };
-      
-        window.CHART = new ApexCharts(document.querySelector("#chart"), options);
-        window.CHART.render();
-      
-      }
-      
-      
-      function updateOptions() {
-      
-          function getRand() {
-            return Math.floor(Math.random() * 100);
-          }
+String render(options) {
+  return """ 
+    <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <title>ApexCharts</title>
+        <script>$APEX_HELPER_JS</script>
+        <script>$APEX_CHARTS_JS</script>
+        <style>$APEX_CHARTS_CSS</style>
+      </head>
+      <body>
+        <div id="chart" ></div>
+        
+        <div id="error_card" style="display: none; background-color: #f7f7f7; border: 1px solid #dcdcdc; border-radius: 5px; padding: 20px; margin: 10px; text-align: center;">
+          <p style="color: red; font-size: 18px;">Error Encountered</p>
+          <p style="color: #333; font-size: 14px;">An error occurred while rendering the chart. Please check the console for more information.</p>
+          <div id="error_message" style="color: red; font-size: 14px;"></div>
+        </div>
 
-          console.log(window.CHART);
-          
-          var options = {
-            series: [{
-              name: "Desktops",
-              data: [getRand(), getRand(), getRand(), getRand(), getRand(), getRand(), getRand(), getRand(), getRand()]
-            }],
-          };
-          window.CHART.updateOptions(options);
-              
-      }
-      
-    </script>
-  </body>
-</html>
-""";
+        <script>
+          window.onload = function () {
+            try {
+              window.chart = new ApexCharts(document.querySelector("#chart"), ${jsonEncode(options)});
+              window.chart.render();
+            }
+            catch (e) {
+              console.error(e);
+              document.getElementById("error_card").style.display = "block";
+              document.getElementById("error_message").textContent = "Error Message: " + e.message;
+            }
+          }
+        </script>
+      </body>
+    </html>
+  """;
+}

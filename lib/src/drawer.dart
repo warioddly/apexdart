@@ -1,4 +1,5 @@
 
+import 'package:apex_dart/src/controllers/apex_controller.dart';
 import 'package:apex_dart/src/renderer/index.html.dart';
 import 'package:crossview/crossview.dart';
 import 'package:flutter/material.dart';
@@ -6,8 +7,14 @@ import 'package:flutter/material.dart';
 
 class ApexDart extends StatefulWidget {
 
-  const ApexDart({ super.key });
+  const ApexDart({
+    super.key,
+    required this.options,
+    this.controller
+  });
 
+  final Map<String, dynamic> options;
+  final ApexController? controller;
 
   @override
   State<ApexDart> createState() => _ApexDartState();
@@ -15,52 +22,34 @@ class ApexDart extends StatefulWidget {
 
 class _ApexDartState extends State<ApexDart> {
 
-  late CrossViewController webViewController;
+  late final ApexController controller;
 
-  bool _jsEvaluating = false;
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.controller != null && widget.controller!.initialized) {
+      throw FlutterError(
+        "ApexDart: You cannot use the same controller for multiple charts."
+      );
+    }
+
+    controller = widget.controller ?? ApexController();
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: CrossView(
-        initialContent: INDEX_HTML,
+        // ignoreAllGestures: true,
+        initialContent: render(widget.options),
         initialSourceType: SourceType.html,
-        onWebViewCreated: (controller) {
-
-          webViewController = controller;
-
-          webViewController.loadContent(INDEX_HTML, SourceType.html);
-
-
-        }
+        onCreated: (_) => controller.init(_)
       ),
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () async {
-
-          try {
-
-            if (_jsEvaluating) {
-              print("WAIT FOR JS EVALUATION");
-              return;
-            }
-
-            _jsEvaluating = true;
-
-            await webViewController.callJsMethod("window.update", []);
-
-            Future.delayed(const Duration(seconds: 1), () => _jsEvaluating = false);
-
-          }
-          catch (e) {
-            Future.delayed(const Duration(seconds: 1), () => _jsEvaluating = false);
-            print(e);
-          }
-        },
-      )
     );
   }
-
 
 
 }
