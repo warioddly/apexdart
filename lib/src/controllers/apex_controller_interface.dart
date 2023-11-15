@@ -2,6 +2,8 @@
 
 abstract class ApexControllerAbstract {
 
+  double get chartHeight;
+
 
   void update(Map<String, dynamic> options);
 
@@ -10,6 +12,12 @@ abstract class ApexControllerAbstract {
 
 
   void downloadSvg();
+
+
+  Future<double?> getChartHeight();
+
+
+  void adjustViewHeight();
 
 
 }

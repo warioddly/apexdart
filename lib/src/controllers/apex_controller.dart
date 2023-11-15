@@ -1,23 +1,28 @@
 
-
 import 'dart:convert';
-import 'package:apex_dart/src/utils/utils.dart';
 import 'package:crossview/crossview.dart' show CrossViewController;
-import 'package:universal_html/js.dart';
+import 'package:flutter/material.dart';
 import 'apex_controller_interface.dart';
 
 
-class ApexController implements ApexControllerAbstract {
+class ApexController extends ChangeNotifier implements ApexControllerAbstract {
 
   late final CrossViewController? _webViewController;
 
   bool _initialized = false;
-
   get initialized => _initialized;
+
+  double _chartHeight = 0.1;
+
+
+  @override
+  double get chartHeight => _chartHeight;
+
 
   void init(CrossViewController controller) {
     _webViewController = controller;
     _initialized = true;
+    Future.delayed(const Duration(milliseconds: 1000), () => adjustViewHeight());
   }
 
 
@@ -25,9 +30,9 @@ class ApexController implements ApexControllerAbstract {
   void update(Map<String, dynamic> options ) {
 
     try {
-      _webViewController?.evalRawJavascript(
-        "window.update(${jsonEncode(options)})",
-        inGlobalContext: true
+      _webViewController?.runJavaScript(
+          "ApexCharts.exec('chart', 'update', ${jsonEncode(options)}, true);",
+          inGlobalContext: true
       );
     }
     catch (e) {
@@ -42,10 +47,8 @@ class ApexController implements ApexControllerAbstract {
   void updateSeries({ required Map<String, dynamic> data }) {
 
     try {
-      _webViewController?.evalRawJavascript(
-        """
-          ApexCharts.exec('chart', 'updateSeries', [{ data: ${jsonEncode(data)} }], true);
-        """,
+      _webViewController?.runJavaScript(
+        "ApexCharts.exec('chart', 'updateSeries', [{ data: ${jsonEncode(data)} }], true);",
         inGlobalContext: true
       );
     }
@@ -60,16 +63,45 @@ class ApexController implements ApexControllerAbstract {
   @override
   void downloadSvg() async {
 
-    JsObject webViewController = await promiseToFuture(
-        await _webViewController?.evalRawJavascript("window.dataURI();", inGlobalContext: true)
-    );
+    throw Exception("ApexDart: downloadSvg() is not supported");
+    // JsObject webViewController = await promiseToFuture(await _webViewController?.callJsMethod("dataURI", []));
+    //
+    // print("webViewController ${webViewController.toString()}");
+    // print("webViewController ${await _webViewController?.callJsMethod("JsonBuetify", [await _webViewController?.callJsMethod("dataURI", [])])}");
 
-    print("webViewController $webViewController");
-
-    return _webViewController?.evalRawJavascript("window.dataURI();", inGlobalContext: true);
   }
 
 
+  @override
+  Future<double?> getChartHeight() async {
+
+    try {
+      double? height = await _webViewController?.callJsMethod("getChartHeight", []);
+      return height;
+    }
+    catch (e) {
+      throw Exception("ApexDart: Failed to get chart height: $e");
+    }
+
+  }
+
+
+  @override
+  void adjustViewHeight() async {
+
+    double height = await getChartHeight() ?? 0.0;
+
+    if (height == 0) {
+      Future.delayed(const Duration(milliseconds: 1000), () => adjustViewHeight());
+      notifyListeners();
+      return;
+    }
+
+    _chartHeight = height;
+
+    notifyListeners();
+
+  }
 
 
 }

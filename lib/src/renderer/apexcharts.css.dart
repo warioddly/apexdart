@@ -2,6 +2,19 @@
 
 
 const String APEX_CHARTS_CSS = r""" 
+
+body {
+  margin: 0;
+  height: 100%;
+  // background-color: blue;
+}
+
+#chart {
+  height: 100%;
+  width: 100%;
+  // background-color: red;
+}
+
 @keyframes opaque {
   0% {
       opacity: 0

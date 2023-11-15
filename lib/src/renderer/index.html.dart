@@ -17,7 +17,8 @@ String render(options) {
         <style>$APEX_CHARTS_CSS</style>
       </head>
       <body>
-        <div id="chart" ></div>
+      
+        <div id="chart"></div>
         
         <div id="error_card" style="display: none; background-color: #f7f7f7; border: 1px solid #dcdcdc; border-radius: 5px; padding: 20px; margin: 10px; text-align: center;">
           <p style="color: red; font-size: 18px;">Error Encountered</p>

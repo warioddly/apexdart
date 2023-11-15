@@ -28,11 +28,11 @@ class _ApexDartState extends State<ApexDart> {
   void initState() {
     super.initState();
 
-    if (widget.controller != null && widget.controller!.initialized) {
-      throw FlutterError(
-        "ApexDart: You cannot use the same controller for multiple charts."
-      );
-    }
+    // if (widget.controller != null && widget.controller!.initialized) {
+    //   throw FlutterError(
+    //     "ApexDart: You cannot use the same controller for multiple charts."
+    //   );
+    // }
 
     controller = widget.controller ?? ApexController();
 
@@ -41,14 +41,23 @@ class _ApexDartState extends State<ApexDart> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: CrossView(
-        // ignoreAllGestures: true,
-        initialContent: render(widget.options),
-        initialSourceType: SourceType.html,
-        onCreated: (_) => controller.init(_)
-      ),
+
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        return Center(
+          child: SizedBox(
+            height: controller.chartHeight,
+            child: CrossView(
+              initialContent: render(widget.options),
+              initialSourceType: SourceType.html,
+              onViewCreated: (_) => controller.init(_),
+            ),
+          ),
+        );
+      }
     );
+
   }
 
 
